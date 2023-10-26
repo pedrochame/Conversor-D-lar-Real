@@ -1,35 +1,38 @@
-let valorDolarElement = document.querySelector("#valorDolar")
-let valorRealElement = document.querySelector("#valorReal")
-let botaoConverterElement = document.querySelector("#botaoConverter")
+let valorDolarElement = document.querySelector("#valorDolar");
+let valorRealElement = document.querySelector("#valorReal");
+let botaoConverterElement = document.querySelector("#botaoConverter");
 
+function converte() {
+  let dolar = valorDolarElement.value;
 
-function fazGet(url){
-    let request = new XMLHttpRequest()
-    request.open("GET",url,false)
-    request.send()
-    return request.responseText
+  if (dolar < 0) {
+    valorRealElement.textContent = "0.00";
+    return;
+  }
+
+  // Fazendo a solicitação GET à API usando fetch
+  fetch("http://economia.awesomeapi.com.br/json/last/USD-BRL")
+    .then((response) => {
+      // Verifica se a resposta da API está OK (código 200)
+      if (!response.ok) {
+        throw new Error("Erro na solicitação à API");
+      }
+      // Converte a resposta em formato JSON
+      return response.json();
+    })
+    .then((data) => {
+      // Faça o que você quiser com os dados da API
+      valorRealElement.textContent = (dolar * data.USDBRL.bid).toFixed(2);
+    })
+    .catch((error) => {
+      // Trate erros, se houver algum
+      console.error("Ocorreu um erro:", error);
+    });
 }
 
-
-function converte(){
-
-    let dolar = valorDolarElement.value;
-
-    if(dolar < 0){
-        return
-    }
-
-    const url = "http://economia.awesomeapi.com.br/json/last/USD-BRL"
-    let info = fazGet(url)
-    let dolarEmRealAgora = JSON.parse(info).USDBRL.bid
-
-    valorRealElement.textContent = (dolar*dolarEmRealAgora).toFixed(2)
-    
+function main() {
+  converte();
+  botaoConverterElement.addEventListener("click", converte);
 }
 
-function main(){
-    converte()
-    botaoConverterElement.addEventListener("click",converte)
-}
-
-main()
+main();
